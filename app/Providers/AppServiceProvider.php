@@ -15,7 +15,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Di Vercel serverless, arahkan path compiled view dan storage ke /tmp
+        if (isset($_ENV['VERCEL']) || isset($_SERVER['VERCEL']) || config('app.env') === 'production') {
+            $this->app->useStoragePath('/tmp/storage');
+            config([
+                'view.compiled' => '/tmp/storage/framework/views',
+            ]);
+        }
     }
 
     /**
@@ -28,8 +34,12 @@ class AppServiceProvider extends ServiceProvider
         View::composer('layouts.portal', function ($view): void {
             $portalSettings = [];
 
-            if (Schema::hasTable('school_settings')) {
-                $portalSettings = SchoolSetting::query()->pluck('value', 'key')->all();
+            try {
+                if (Schema::hasTable('school_settings')) {
+                    $portalSettings = SchoolSetting::query()->pluck('value', 'key')->all();
+                }
+            } catch (\Throwable $e) {
+                // Jangan crash jika koneksi database sedang proses inisialisasi
             }
 
             $view->with('portalSettings', $portalSettings);
