@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 480" width="100%" height="100%">
+  <rect width="360" height="480" fill="#f8fafc"/>
+  <rect x="1" y="1" width="358" height="478" fill="none" stroke="#e2e8f0" stroke-width="2"/>
+  <g transform="translate(180, 210)">
+    <circle cx="0" cy="-35" r="45" fill="none" stroke="#94a3b8" stroke-width="4"/>
+    <path d="M-80 95 C-80 35, 80 35, 80 95 Z" fill="none" stroke="#94a3b8" stroke-width="4"/>
+  </g>
+  <text x="180" y="360" text-anchor="middle" fill="#64748b" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" letter-spacing="1.5">FOTO GURU &amp; TENDIK</text>
+</svg>
