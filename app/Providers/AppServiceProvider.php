@@ -15,13 +15,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // Di Vercel serverless, arahkan path compiled view dan storage ke /tmp
-        if (isset($_ENV['VERCEL']) || isset($_SERVER['VERCEL']) || config('app.env') === 'production') {
-            $this->app->useStoragePath('/tmp/storage');
-            config([
-                'view.compiled' => '/tmp/storage/framework/views',
-            ]);
-        }
+        //
     }
 
     /**
