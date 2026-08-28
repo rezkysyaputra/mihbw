@@ -1,7 +1,8 @@
 <?php
 
-// Pastikan folder cache sementara tersedia di lingkungan serverless Vercel (/tmp)
+// Pastikan direktori sementara /tmp siap
 $storageDirs = [
+    '/tmp/views',
     '/tmp/storage/framework/views',
     '/tmp/storage/framework/cache',
     '/tmp/storage/framework/sessions',
@@ -15,4 +16,5 @@ foreach ($storageDirs as $dir) {
     }
 }
 
+// Redirect request ke public/index.php Laravel
 require __DIR__ . '/../public/index.php';
