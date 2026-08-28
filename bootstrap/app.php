@@ -4,11 +4,19 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 
-// Di lingkungan Vercel serverless, arahkan path storage dan bootstrap cache ke /tmp (writable)
-if (isset($_ENV['VERCEL']) || isset($_SERVER['VERCEL']) || env('APP_ENV') === 'production') {
-    $storagePath = '/tmp/storage';
-    if (! is_dir($storagePath)) {
-        @mkdir($storagePath, 0755, true);
+// Di lingkungan Vercel serverless, pastikan seluruh direktori storage sementara /tmp tersedia
+$storageDirs = [
+    '/tmp/views',
+    '/tmp/storage/framework/views',
+    '/tmp/storage/framework/cache',
+    '/tmp/storage/framework/sessions',
+    '/tmp/storage/logs',
+    '/tmp/bootstrap/cache',
+];
+
+foreach ($storageDirs as $dir) {
+    if (! is_dir($dir)) {
+        @mkdir($dir, 0755, true);
     }
 }
 
@@ -23,4 +31,5 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
-    })->create();
+    })
+    ->create();
