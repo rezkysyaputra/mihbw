@@ -1,10 +1,11 @@
 <?php
 
-use Illuminate\Http\Request;
+// Aktifkan display error agar jika ada kendala, pesan langsung muncul di browser
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
+error_reporting(E_ALL);
 
-define('LARAVEL_START', microtime(true));
-
-// Setup folder temporary /tmp untuk serverless
+// Buat direktori /tmp yang diperlukan
 $tmpStorage = '/tmp/storage';
 foreach ([
     $tmpStorage . '/framework/views',
@@ -17,23 +18,8 @@ foreach ([
     }
 }
 
-// 1. Muat composer autoload
-require __DIR__ . '/../vendor/autoload.php';
+putenv('LARAVEL_STORAGE_PATH=' . $tmpStorage);
+$_ENV['LARAVEL_STORAGE_PATH'] = $tmpStorage;
+$_SERVER['LARAVEL_STORAGE_PATH'] = $tmpStorage;
 
-// 2. Buat instance application Laravel
-/** @var \Illuminate\Foundation\Application $app */
-$app = require __DIR__ . '/../bootstrap/app.php';
-
-// 3. Arahkan storage path ke /tmp
-$app->useStoragePath($tmpStorage);
-
-// 4. Jalankan request melalui HTTP Kernel
-$kernel = $app->make(\Illuminate\Contracts\Http\Kernel::class);
-
-$response = $kernel->handle(
-    $request = Request::capture()
-);
-
-$response->send();
-
-$kernel->terminate($request, $response);
+require __DIR__ . '/../public/index.php';
