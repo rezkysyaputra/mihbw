@@ -71,21 +71,21 @@
     @endphp
 
     <section class="site-container section-pad">
-        <div class="page-header">
+        <div class="page-header mx-auto text-center flex flex-col items-center">
             <span class="badge-accent">Dokumentasi</span>
             <h1 class="page-title">Galeri Kegiatan</h1>
-            <p class="lead-text">Dokumentasi kegiatan belajar mengajar, pembiasaan islami, dan agenda madrasah.</p>
+            <p class="lead-text mx-auto">Dokumentasi kegiatan belajar mengajar, pembiasaan islami, dan agenda madrasah.</p>
         </div>
 
-        <div class="mt-10 grid gap-12">
+        <div class="mt-10 mx-auto max-w-5xl grid gap-10">
             @foreach($galleryAlbums as $album)
                 @php
                     $albumIndex = $loop->index;
                 @endphp
-                <section class="rounded-lg border border-slate-200 bg-white p-5 sm:p-6">
+                <section class="border border-slate-200 bg-white p-5 sm:p-6">
                     <div class="flex flex-wrap items-end justify-between gap-3 border-b border-slate-100 pb-3">
                         <div>
-                            <h2 class="text-lg font-bold text-slate-900">{{ $album['title'] }}</h2>
+                            <h2 class="text-base sm:text-lg font-bold text-slate-900">{{ $album['title'] }}</h2>
                             @if(filled($album['description']))
                                 <p class="mt-1 max-w-2xl text-xs sm:text-sm text-slate-500">{{ $album['description'] }}</p>
                             @endif
