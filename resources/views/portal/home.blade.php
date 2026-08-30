@@ -89,7 +89,7 @@
                         Membentuk Generasi Berakhlak, Cerdas, dan Mandiri
                     </h1>
                     <p class="lead-text mt-3">
-                        Selamat datang di portal resmi MI Hubbul Wathan Lalonggasumeeto. Kami berkomitmen memberikan lingkungan pendidikan dasar Islam yang unggul, terpadu, dan peduli pada tumbuh kembang karakter siswa.
+                        Selamat datang di portal resmi MI Hubbul Wathan Desa Toli-Toli. Kami berkomitmen memberikan lingkungan pendidikan dasar Islam yang unggul, terpadu, dan peduli pada tumbuh kembang karakter siswa.
                     </p>
                     <div class="mt-5 flex flex-wrap items-center gap-2.5">
                         <a href="{{ route('ppdb.create') }}" class="btn-primary w-full sm:w-auto">Daftar PPDB Online &rarr;</a>
