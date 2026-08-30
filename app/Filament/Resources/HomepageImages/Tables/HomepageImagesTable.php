@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\HomepageImages\Tables;
 
+use App\Filament\Support\PortalResourceKit;
 use App\Models\HomepageImage;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -20,8 +21,7 @@ class HomepageImagesTable
             ->columns([
                 ImageColumn::make('galleryItem.image')
                     ->label('Foto')
-                    ->disk('public')
-                    ->visibility('public')
+                    ->disk(PortalResourceKit::disk())
                     ->imageSize(56)
                     ->square(),
                 TextColumn::make('galleryItem.title')

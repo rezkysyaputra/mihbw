@@ -28,6 +28,11 @@ use Illuminate\Support\Str;
 
 class PortalResourceKit
 {
+    public static function disk(): string
+    {
+        return config('filesystems.default') === 's3' ? 's3' : 'public';
+    }
+
     public static function statusOptions(): array
     {
         return [
@@ -76,7 +81,7 @@ class PortalResourceKit
                 ->label('Gambar Sampul')
                 ->image()
                 ->imageEditor()
-                ->disk('public')
+                ->disk(self::disk())
                 ->directory($imageDirectory);
         }
 
@@ -177,7 +182,7 @@ class PortalResourceKit
                     'PTT' => 'Pegawai Tidak Tetap',
                 ])
                 ->default('GTT'),
-            FileUpload::make('photo')->label('Foto Profil')->image()->imageEditor()->disk('public')->directory('teachers'),
+            FileUpload::make('photo')->label('Foto Profil')->image()->imageEditor()->disk(self::disk())->directory('teachers'),
             Select::make('status')->label('Status')->options(self::statusOptions())->default('published')->required(),
             TextInput::make('sort_order')->label('Urutan Tampilan')->helperText('Makin kecil angkanya, makin di atas posisinya')->numeric()->default(0),
         ])->columns(2);
@@ -197,7 +202,7 @@ class PortalResourceKit
                 ->reorderable()
                 ->appendFiles()
                 ->maxFiles(12)
-                ->disk('public')
+                ->disk(self::disk())
                 ->directory('extracurriculars')
                 ->columnSpanFull(),
             Textarea::make('description')->label('Deskripsi Kegiatan')->rows(4)->columnSpanFull(),
@@ -224,7 +229,7 @@ class PortalResourceKit
             TextInput::make('slug')->label('Slug')->required()->maxLength(255),
             FileUpload::make('file_path')
                 ->label('Berkas File')
-                ->disk('public')
+                ->disk(self::disk())
                 ->directory('documents')
                 ->acceptedFileTypes(['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'image/jpeg', 'image/png'])
                 ->required(),
@@ -238,7 +243,7 @@ class PortalResourceKit
         return $schema->components([
             TextInput::make('title')->label('Judul Album')->required()->maxLength(255),
             TextInput::make('slug')->label('Slug')->required()->maxLength(255),
-            FileUpload::make('cover_image')->label('Gambar Sampul Album')->image()->disk('public')->directory('gallery'),
+            FileUpload::make('cover_image')->label('Gambar Sampul Album')->image()->disk(self::disk())->directory('gallery'),
             FileUpload::make('bulk_photos')
                 ->label('Unggah Banyak Foto Sekaligus (Bulk Upload)')
                 ->helperText('Pilih beberapa foto sekaligus untuk langsung ditambahkan ke album ini.')
@@ -247,7 +252,7 @@ class PortalResourceKit
                 ->reorderable()
                 ->appendFiles()
                 ->maxFiles(30)
-                ->disk('public')
+                ->disk(self::disk())
                 ->directory('gallery/school')
                 ->columnSpanFull()
                 ->dehydrated(false),
@@ -261,7 +266,7 @@ class PortalResourceKit
         return $schema->components([
             Select::make('gallery_album_id')->label('Album Galeri')->relationship('album', 'title')->required(),
             TextInput::make('title')->label('Judul Foto')->placeholder('Contoh: Kegiatan Upacara Bendera')->maxLength(255),
-            FileUpload::make('image')->label('Berkas Foto')->image()->imageEditor()->disk('public')->directory('gallery/school')->required(),
+            FileUpload::make('image')->label('Berkas Foto')->image()->imageEditor()->disk(self::disk())->directory('gallery/school')->required(),
             Textarea::make('caption')->label('Keterangan Foto')->rows(2)->columnSpanFull(),
             TextInput::make('sort_order')->label('Urutan')->numeric()->default(0),
             Select::make('status')->label('Status')->options(self::statusOptions())->default('published')->required(),
@@ -327,7 +332,7 @@ class PortalResourceKit
     {
         $columns = [];
         if ($mainColumn === 'photo') {
-            $columns[] = ImageColumn::make('photo')->label('Foto')->circular()->disk('public');
+            $columns[] = ImageColumn::make('photo')->label('Foto')->circular()->disk(self::disk());
             $columns[] = TextColumn::make('name')->label('Nama Lengkap')->searchable()->sortable();
             $columns[] = TextColumn::make('position')->label('Jabatan')->searchable();
             $columns[] = TextColumn::make('employment_status')->label('Status')->badge();
