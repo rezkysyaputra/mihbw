@@ -1,58 +1,72 @@
 <?php
 
-header('Content-Type: text/html; charset=utf-8');
-
-ini_set('display_errors', '1');
-ini_set('display_startup_errors', '1');
-error_reporting(E_ALL);
+use Illuminate\Http\Request;
 
 define('LARAVEL_START', microtime(true));
 
-// 1. Setup direktori writable di /tmp
+// Setup folder temporary /tmp untuk serverless
 $tmpStorage = '/tmp/storage';
+$tmpBootstrapCache = '/tmp/bootstrap/cache';
+
 foreach ([
     $tmpStorage . '/framework/views',
     $tmpStorage . '/framework/cache/data',
     $tmpStorage . '/framework/sessions',
     $tmpStorage . '/logs',
-    '/tmp/bootstrap/cache',
+    $tmpBootstrapCache,
 ] as $dir) {
     if (! is_dir($dir)) {
         @mkdir($dir, 0755, true);
     }
 }
 
-putenv('LARAVEL_STORAGE_PATH=' . $tmpStorage);
-$_ENV['LARAVEL_STORAGE_PATH'] = $tmpStorage;
-$_SERVER['LARAVEL_STORAGE_PATH'] = $tmpStorage;
+// Salin cache bootstrap ke /tmp agar dapat dibaca dan ditulis ulang tanpa error read-only
+if (is_dir(__DIR__ . '/../bootstrap/cache')) {
+    foreach (scandir(__DIR__ . '/../bootstrap/cache') as $file) {
+        if (str_ends_with($file, '.php')) {
+            @copy(__DIR__ . '/../bootstrap/cache/' . $file, $tmpBootstrapCache . '/' . $file);
+        }
+    }
+}
 
-// 2. Load composer autoloader
+putenv('LARAVEL_STORAGE_PATH=' . $tmpStorage);
+putenv('APP_SERVICES_CACHE=' . $tmpBootstrapCache . '/services.php');
+putenv('APP_PACKAGES_CACHE=' . $tmpBootstrapCache . '/packages.php');
+putenv('APP_CONFIG_CACHE=' . $tmpBootstrapCache . '/config.php');
+putenv('APP_ROUTES_CACHE=' . $tmpBootstrapCache . '/routes.php');
+putenv('APP_EVENTS_CACHE=' . $tmpBootstrapCache . '/events.php');
+
+$_ENV['LARAVEL_STORAGE_PATH'] = $tmpStorage;
+$_ENV['APP_SERVICES_CACHE'] = $tmpBootstrapCache . '/services.php';
+$_ENV['APP_PACKAGES_CACHE'] = $tmpBootstrapCache . '/packages.php';
+$_ENV['APP_CONFIG_CACHE'] = $tmpBootstrapCache . '/config.php';
+$_ENV['APP_ROUTES_CACHE'] = $tmpBootstrapCache . '/routes.php';
+$_ENV['APP_EVENTS_CACHE'] = $tmpBootstrapCache . '/events.php';
+
+$_SERVER['LARAVEL_STORAGE_PATH'] = $tmpStorage;
+$_SERVER['APP_SERVICES_CACHE'] = $tmpBootstrapCache . '/services.php';
+$_SERVER['APP_PACKAGES_CACHE'] = $tmpBootstrapCache . '/packages.php';
+$_SERVER['APP_CONFIG_CACHE'] = $tmpBootstrapCache . '/config.php';
+$_SERVER['APP_ROUTES_CACHE'] = $tmpBootstrapCache . '/routes.php';
+$_SERVER['APP_EVENTS_CACHE'] = $tmpBootstrapCache . '/events.php';
+
+// 1. Muat composer autoload
 require __DIR__ . '/../vendor/autoload.php';
 
-try {
-    // 3. Load Bootstrap Application
-    $app = require_once __DIR__ . '/../bootstrap/app.php';
+// 2. Buat instance application Laravel
+/** @var \Illuminate\Foundation\Application $app */
+$app = require __DIR__ . '/../bootstrap/app.php';
 
-    // 4. Pastikan ViewServiceProvider terdaftar di container jika belum
-    if (! $app->bound('view')) {
-        $app->register(\Illuminate\View\ViewServiceProvider::class);
-    }
+// 3. Arahkan storage path ke /tmp
+$app->useStoragePath($tmpStorage);
 
-    // 5. Eksekusi request melalui HTTP Kernel
-    $kernel = $app->make(\Illuminate\Contracts\Http\Kernel::class);
+// 4. Jalankan request melalui HTTP Kernel
+$kernel = $app->make(\Illuminate\Contracts\Http\Kernel::class);
 
-    $request = \Illuminate\Http\Request::capture();
-    $response = $kernel->handle($request);
-    $response->send();
-    $kernel->terminate($request, $response);
+$response = $kernel->handle(
+    $request = Request::capture()
+);
 
-} catch (\Throwable $e) {
-    http_response_code(500);
-    echo '<div style="font-family: sans-serif; padding: 30px; background: #fff; color: #111; max-width: 900px; margin: 20px auto; border: 1px solid #e2e8f0; border-radius: 8px;">';
-    echo '<h2 style="color: #dc2626; margin-top: 0;">Error Terdeteksi di Vercel:</h2>';
-    echo '<p style="font-size: 16px; font-weight: bold; background: #fef2f2; color: #991b1b; padding: 12px; border-radius: 6px; border: 1px solid #fecaca;">' . htmlspecialchars($e->getMessage()) . '</p>';
-    echo '<p><strong>File:</strong> ' . htmlspecialchars($e->getFile()) . ' (' . $e->getLine() . ')</p>';
-    echo '<h3 style="margin-top: 20px;">Stack Trace:</h3>';
-    echo '<pre style="background: #f8fafc; padding: 15px; overflow-x: auto; font-size: 12px; border: 1px solid #cbd5e1; border-radius: 6px;">' . htmlspecialchars($e->getTraceAsString()) . '</pre>';
-    echo '</div>';
-}
+$response->send();
+
+$kernel->terminate($request, $response);
